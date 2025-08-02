@@ -31,9 +31,9 @@ const DriversPage = () => {
     const [nextRefresh, setNextRefresh] = useState(null);
 
     // Modal states
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
+    const [showCreatePanel, setShowCreatePanel] = useState(false);
+    const [showDetailsPanel, setShowDetailsPanel] = useState(false);
+    const [showEditPanel, setShowEditPanel] = useState(false);
     const [selectedDriver, setSelectedDriver] = useState(null);
 
     // Form state
@@ -121,7 +121,7 @@ const DriversPage = () => {
 
             if (response.ok) {
                 toast.success('Driver created successfully!');
-                setShowCreateModal(false);
+                setShowCreatePanel(false);
                 setNewDriver({
                     name: '',
                     email: '',
@@ -167,7 +167,7 @@ const DriversPage = () => {
 
             if (response.ok) {
                 toast.success('Driver updated successfully!');
-                setShowEditModal(false);
+                setShowEditPanel(false);
                 loadDrivers();
             } else {
                 console.error('Failed to update driver:', result);
@@ -223,7 +223,7 @@ const DriversPage = () => {
         }));
     };
 
-    const openCreateModal = () => {
+    const openCreatePanel = () => {
         setNewDriver({
             name: '',
             email: '',
@@ -231,15 +231,15 @@ const DriversPage = () => {
             studentId: '',
             area: 'Other'
         });
-        setShowCreateModal(true);
+        setShowCreatePanel(true);
     };
 
-    const openDetailsModal = (driver) => {
+    const openDetailsPanel = (driver) => {
         setSelectedDriver(driver);
-        setShowDetailsModal(true);
+        setShowDetailsPanel(true);
     };
 
-    const openEditModal = (driver) => {
+    const openEditPanel = (driver) => {
         setSelectedDriver(driver);
         setNewDriver({
             name: driver.name || '',
@@ -248,7 +248,7 @@ const DriversPage = () => {
             studentId: driver.studentId || '',
             area: driver.area || 'Other'
         });
-        setShowEditModal(true);
+        setShowEditPanel(true);
     };
 
     const getStatusColor = (status) => {
@@ -318,7 +318,7 @@ const DriversPage = () => {
                         Refresh
                     </button>
                     <button
-                        onClick={openCreateModal}
+                        onClick={openCreatePanel}
                         className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
                     >
                         <PlusIcon className="h-4 w-4 mr-2" />
@@ -456,13 +456,13 @@ const DriversPage = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div className="flex items-center justify-end space-x-2">
                                                 <button
-                                                    onClick={() => openDetailsModal(driver)}
+                                                    onClick={() => openDetailsPanel(driver)}
                                                     className="text-blue-600 hover:text-blue-900"
                                                 >
                                                     <EyeIcon className="h-4 w-4" />
                                                 </button>
                                                 <button
-                                                    onClick={() => openEditModal(driver)}
+                                                    onClick={() => openEditPanel(driver)}
                                                     className="text-indigo-600 hover:text-indigo-900"
                                                 >
                                                     <PencilIcon className="h-4 w-4" />
@@ -483,289 +483,345 @@ const DriversPage = () => {
                 </div>
             </div>
 
-            {/* Create Driver Modal */}
-            {showCreateModal && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-medium text-gray-900">Add New Driver</h3>
+            {/* Create Driver Side Panel */}
+            {showCreatePanel && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50">
+                    <div className="fixed right-0 top-0 h-screen w-full sm:w-[500px] bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
+                        <div className="flex flex-col h-full">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                <h3 className="text-xl font-semibold text-gray-900">Add New Driver</h3>
                                 <button
-                                    onClick={() => setShowCreateModal(false)}
-                                    className="text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowCreatePanel(false)}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     <XMarkIcon className="h-6 w-6" />
                                 </button>
                             </div>
-                            <form onSubmit={handleCreateDriver} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Name</label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        required
-                                        value={newDriver.name}
-                                        onChange={handleInputChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        required
-                                        value={newDriver.email}
-                                        onChange={handleInputChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Phone</label>
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        required
-                                        value={newDriver.phone}
-                                        onChange={handleInputChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Student ID</label>
-                                    <input
-                                        type="text"
-                                        name="studentId"
-                                        value={newDriver.studentId}
-                                        onChange={handleInputChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Area</label>
-                                    <select
-                                        name="area"
-                                        value={newDriver.area}
-                                        onChange={handleInputChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    >
-                                        <option value="Gonyeli">Gonyeli</option>
-                                        <option value="Kucuk">Kucuk</option>
-                                        <option value="Lefkosa">Lefkosa</option>
-                                        <option value="Famagusta">Famagusta</option>
-                                        <option value="Kyrenia">Kyrenia</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                                <div className="flex justify-end space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowCreateModal(false)}
-                                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={submitting}
-                                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                                    >
-                                        {submitting ? 'Creating...' : 'Create Driver'}
-                                    </button>
-                                </div>
-                            </form>
+
+                            {/* Form Content */}
+                            <div className="flex-1 overflow-y-auto p-8">
+                                <form id="create-driver-form" onSubmit={handleCreateDriver} className="space-y-6">
+                                    {/* Personal Information */}
+                                    <div>
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h4>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                                <input
+                                                    type="text"
+                                                    name="name"
+                                                    required
+                                                    placeholder="Enter driver's full name"
+                                                    value={newDriver.name}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    required
+                                                    placeholder="Enter email address"
+                                                    value={newDriver.email}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                                <input
+                                                    type="tel"
+                                                    name="phone"
+                                                    required
+                                                    placeholder="Enter phone number"
+                                                    value={newDriver.phone}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Academic Information */}
+                                    <div>
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Academic Information</h4>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Student ID</label>
+                                                <input
+                                                    type="text"
+                                                    name="studentId"
+                                                    placeholder="Enter student ID (optional)"
+                                                    value={newDriver.studentId}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Service Area</label>
+                                                <select
+                                                    name="area"
+                                                    value={newDriver.area}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                >
+                                                    <option value="Gonyeli">Gonyeli</option>
+                                                    <option value="Kucuk">Kucuk</option>
+                                                    <option value="Lefkosa">Lefkosa</option>
+                                                    <option value="Famagusta">Famagusta</option>
+                                                    <option value="Kyrenia">Kyrenia</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCreatePanel(false)}
+                                    className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    form="create-driver-form"
+                                    disabled={submitting}
+                                    className="px-8 py-3 text-sm font-medium text-white bg-gradient-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 rounded-lg disabled:opacity-50"
+                                >
+                                    {submitting ? 'Creating...' : 'Create Driver'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Edit Driver Modal */}
-            {showEditModal && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-medium text-gray-900">Edit Driver</h3>
+            {/* Edit Driver Side Panel */}
+            {showEditPanel && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50">
+                    <div className="fixed right-0 top-0 h-screen w-full sm:w-[500px] bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
+                        <div className="flex flex-col h-full">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                <h3 className="text-xl font-semibold text-gray-900">Edit Driver</h3>
                                 <button
-                                    onClick={() => setShowEditModal(false)}
-                                    className="text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowEditPanel(false)}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     <XMarkIcon className="h-6 w-6" />
                                 </button>
                             </div>
-                            <form onSubmit={handleUpdateDriver} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Name</label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        required
-                                        value={newDriver.name}
-                                        onChange={handleInputChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Email</label>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        required
-                                        value={newDriver.email}
-                                        onChange={handleInputChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Phone</label>
-                                    <input
-                                        type="tel"
-                                        name="phone"
-                                        required
-                                        value={newDriver.phone}
-                                        onChange={handleInputChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Student ID</label>
-                                    <input
-                                        type="text"
-                                        name="studentId"
-                                        value={newDriver.studentId}
-                                        onChange={handleInputChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Area</label>
-                                    <select
-                                        name="area"
-                                        value={newDriver.area}
-                                        onChange={handleInputChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    >
-                                        <option value="Gonyeli">Gonyeli</option>
-                                        <option value="Kucuk">Kucuk</option>
-                                        <option value="Lefkosa">Lefkosa</option>
-                                        <option value="Famagusta">Famagusta</option>
-                                        <option value="Kyrenia">Kyrenia</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                                <div className="flex justify-end space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowEditModal(false)}
-                                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={submitting}
-                                        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                                    >
-                                        {submitting ? 'Updating...' : 'Update Driver'}
-                                    </button>
-                                </div>
-                            </form>
+
+                            {/* Form Content */}
+                            <div className="flex-1 overflow-y-auto p-8">
+                                <form id="edit-driver-form" onSubmit={handleUpdateDriver} className="space-y-6">
+                                    {/* Personal Information */}
+                                    <div>
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Personal Information</h4>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                                <input
+                                                    type="text"
+                                                    name="name"
+                                                    required
+                                                    placeholder="Enter driver's full name"
+                                                    value={newDriver.name}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    required
+                                                    placeholder="Enter email address"
+                                                    value={newDriver.email}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                                <input
+                                                    type="tel"
+                                                    name="phone"
+                                                    required
+                                                    placeholder="Enter phone number"
+                                                    value={newDriver.phone}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Academic Information */}
+                                    <div>
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Academic Information</h4>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Student ID</label>
+                                                <input
+                                                    type="text"
+                                                    name="studentId"
+                                                    placeholder="Enter student ID (optional)"
+                                                    value={newDriver.studentId}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Service Area</label>
+                                                <select
+                                                    name="area"
+                                                    value={newDriver.area}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                >
+                                                    <option value="Gonyeli">Gonyeli</option>
+                                                    <option value="Kucuk">Kucuk</option>
+                                                    <option value="Lefkosa">Lefkosa</option>
+                                                    <option value="Famagusta">Famagusta</option>
+                                                    <option value="Kyrenia">Kyrenia</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEditPanel(false)}
+                                    className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    form="edit-driver-form"
+                                    disabled={submitting}
+                                    className="px-8 py-3 text-sm font-medium text-white bg-gradient-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 rounded-lg disabled:opacity-50"
+                                >
+                                    {submitting ? 'Updating...' : 'Update Driver'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Driver Details Modal */}
-            {showDetailsModal && selectedDriver && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-medium text-gray-900">Driver Details</h3>
+            {/* Driver Details Side Panel */}
+            {showDetailsPanel && selectedDriver && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50">
+                    <div className="fixed right-0 top-0 h-screen w-full sm:w-[500px] bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
+                        <div className="flex flex-col h-full">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                <h3 className="text-xl font-semibold text-gray-900">Driver Details</h3>
                                 <button
-                                    onClick={() => setShowDetailsModal(false)}
-                                    className="text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowDetailsPanel(false)}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     <XMarkIcon className="h-6 w-6" />
                                 </button>
                             </div>
-                            <div className="space-y-4">
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <div className="flex items-center">
-                                        <UserGroupIcon className="h-8 w-8 text-blue-600" />
-                                        <div className="ml-3">
-                                            <h4 className="text-lg font-medium text-gray-900">{selectedDriver.name}</h4>
-                                            <p className="text-sm text-gray-500">{selectedDriver.studentId || 'No Student ID'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Email</label>
-                                        <div className="mt-1 text-sm text-gray-900 flex items-center">
-                                            <EnvelopeIcon className="h-4 w-4 mr-2" />
-                                            {selectedDriver.email}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Phone</label>
-                                        <div className="mt-1 text-sm text-gray-900 flex items-center">
-                                            <PhoneIcon className="h-4 w-4 mr-2" />
-                                            {selectedDriver.phone}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Area</label>
-                                        <div className="mt-1 text-sm text-gray-900 flex items-center">
-                                            <MapPinIcon className="h-4 w-4 mr-2" />
-                                            {selectedDriver.area}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Status</label>
-                                        <div className="mt-1">
-                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedDriver.isActive)}`}>
-                                                {selectedDriver.isActive ? 'Active' : 'Inactive'}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Performance</label>
-                                        <div className="mt-1 space-y-1">
-                                            <div className="flex items-center text-sm text-gray-900">
-                                                <TruckIcon className="h-4 w-4 mr-2" />
-                                                {selectedDriver.totalDeliveries || 0} total deliveries
+                            {/* Content */}
+                            <div className="flex-1 overflow-y-auto p-8">
+                                <div className="space-y-4">
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <div className="flex items-center">
+                                            <UserGroupIcon className="h-8 w-8 text-blue-600" />
+                                            <div className="ml-3">
+                                                <h4 className="text-lg font-medium text-gray-900">{selectedDriver.name}</h4>
+                                                <p className="text-sm text-gray-500">{selectedDriver.studentId || 'No Student ID'}</p>
                                             </div>
-                                            <div className="flex items-center text-sm text-gray-900">
-                                                <CurrencyDollarIcon className="h-4 w-4 mr-2" />
-                                                ₺{selectedDriver.totalEarnings || 0} total earnings
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Email</label>
+                                            <div className="mt-1 text-sm text-gray-900 flex items-center">
+                                                <EnvelopeIcon className="h-4 w-4 mr-2" />
+                                                {selectedDriver.email}
                                             </div>
-                                            {selectedDriver.rating && (
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Phone</label>
+                                            <div className="mt-1 text-sm text-gray-900 flex items-center">
+                                                <PhoneIcon className="h-4 w-4 mr-2" />
+                                                {selectedDriver.phone}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Area</label>
+                                            <div className="mt-1 text-sm text-gray-900 flex items-center">
+                                                <MapPinIcon className="h-4 w-4 mr-2" />
+                                                {selectedDriver.area}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Status</label>
+                                            <div className="mt-1">
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedDriver.isActive)}`}>
+                                                    {selectedDriver.isActive ? 'Active' : 'Inactive'}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Performance</label>
+                                            <div className="mt-1 space-y-1">
                                                 <div className="flex items-center text-sm text-gray-900">
-                                                    <StarIcon className="h-4 w-4 mr-2" />
-                                                    {selectedDriver.rating} average rating
+                                                    <TruckIcon className="h-4 w-4 mr-2" />
+                                                    {selectedDriver.totalDeliveries || 0} total deliveries
                                                 </div>
-                                            )}
+                                                <div className="flex items-center text-sm text-gray-900">
+                                                    <CurrencyDollarIcon className="h-4 w-4 mr-2" />
+                                                    ₺{selectedDriver.totalEarnings || 0} total earnings
+                                                </div>
+                                                {selectedDriver.rating && (
+                                                    <div className="flex items-center text-sm text-gray-900">
+                                                        <StarIcon className="h-4 w-4 mr-2" />
+                                                        {selectedDriver.rating} average rating
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Joined</label>
+                                            <div className="mt-1 text-sm text-gray-900">
+                                                {selectedDriver.createdAt ? new Date(selectedDriver.createdAt).toLocaleDateString() : 'N/A'}
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Joined</label>
-                                        <div className="mt-1 text-sm text-gray-900">
-                                            {selectedDriver.createdAt ? new Date(selectedDriver.createdAt).toLocaleDateString() : 'N/A'}
-                                        </div>
-                                    </div>
                                 </div>
 
-                                <div className="flex justify-end space-x-3">
+                                {/* Footer */}
+                                <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
                                     <button
-                                        onClick={() => setShowDetailsModal(false)}
-                                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                                        onClick={() => setShowDetailsPanel(false)}
+                                        className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
                                     >
                                         Close
                                     </button>

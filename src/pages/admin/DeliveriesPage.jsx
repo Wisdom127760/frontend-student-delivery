@@ -3,20 +3,14 @@ import { format } from 'date-fns';
 import { useLocation } from 'react-router-dom';
 import {
     MagnifyingGlassIcon,
-    FunnelIcon,
     PlusIcon,
     EyeIcon,
     PencilIcon,
     TrashIcon,
     TruckIcon,
-    ClockIcon,
-    CheckCircleIcon,
     XMarkIcon,
-    ExclamationTriangleIcon,
     CurrencyDollarIcon,
-    UserIcon,
-    PhoneIcon,
-    EnvelopeIcon
+    UserIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -28,10 +22,10 @@ const DeliveriesPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
 
-    // Modal states
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
+    // Side panel states
+    const [showCreatePanel, setShowCreatePanel] = useState(false);
+    const [showViewPanel, setShowViewPanel] = useState(false);
+    const [showEditPanel, setShowEditPanel] = useState(false);
     const [selectedDelivery, setSelectedDelivery] = useState(null);
 
     // Form states
@@ -52,15 +46,15 @@ const DeliveriesPage = () => {
         fetchDeliveries();
         fetchDrivers();
 
-        // Check if we should open the create modal
+        // Check if we should open the create panel
         const searchParams = new URLSearchParams(location.search);
         if (searchParams.get('create') === 'true') {
             // Clear the query parameter from URL
             window.history.replaceState({}, document.title, window.location.pathname);
-            // Open the create modal
-            openCreateModal();
+            // Open the create panel
+            openCreatePanel();
         }
-    }, [location.search]);
+    }, [location.search, fetchDeliveries, fetchDrivers, openCreatePanel]);
 
     const fetchDeliveries = async () => {
         try {
@@ -141,7 +135,7 @@ const DeliveriesPage = () => {
 
             if (response.ok) {
                 toast.success('Delivery created successfully!');
-                setShowCreateModal(false);
+                setShowCreatePanel(false);
                 resetForm();
                 fetchDeliveries();
             } else {
@@ -192,7 +186,7 @@ const DeliveriesPage = () => {
 
             if (response.ok) {
                 toast.success('Delivery updated successfully!');
-                setShowEditModal(false);
+                setShowEditPanel(false);
                 resetForm();
                 fetchDeliveries();
             } else {
@@ -280,17 +274,17 @@ const DeliveriesPage = () => {
         });
     };
 
-    const openCreateModal = () => {
+    const openCreatePanel = () => {
         resetForm();
-        setShowCreateModal(true);
+        setShowCreatePanel(true);
     };
 
-    const openViewModal = (delivery) => {
+    const openViewPanel = (delivery) => {
         setSelectedDelivery(delivery);
-        setShowViewModal(true);
+        setShowViewPanel(true);
     };
 
-    const openEditModal = (delivery) => {
+    const openEditPanel = (delivery) => {
         setSelectedDelivery(delivery);
         setFormData({
             pickupLocation: delivery.pickupLocation || '',
@@ -302,7 +296,7 @@ const DeliveriesPage = () => {
             status: delivery.status || 'pending',
             notes: delivery.notes || ''
         });
-        setShowEditModal(true);
+        setShowEditPanel(true);
     };
 
     const filteredDeliveries = deliveries.filter(delivery => {
@@ -356,7 +350,7 @@ const DeliveriesPage = () => {
                     </p>
                 </div>
                 <button
-                    onClick={openCreateModal}
+                    onClick={openCreatePanel}
                     className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
                 >
                     <PlusIcon className="h-4 w-4 mr-2" />
@@ -498,13 +492,13 @@ const DeliveriesPage = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex items-center justify-end space-x-2">
                                             <button
-                                                onClick={() => openViewModal(delivery)}
+                                                onClick={() => openViewPanel(delivery)}
                                                 className="text-blue-600 hover:text-blue-900"
                                             >
                                                 <EyeIcon className="h-4 w-4" />
                                             </button>
                                             <button
-                                                onClick={() => openEditModal(delivery)}
+                                                onClick={() => openEditPanel(delivery)}
                                                 className="text-indigo-600 hover:text-indigo-900"
                                             >
                                                 <PencilIcon className="h-4 w-4" />
@@ -524,409 +518,463 @@ const DeliveriesPage = () => {
                 </div>
             </div>
 
-            {/* Create Delivery Modal */}
-            {showCreateModal && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-medium text-gray-900">Create New Delivery</h3>
+            {/* Create Delivery Side Panel */}
+            {showCreatePanel && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50">
+                    <div className="fixed right-0 top-0 h-screen w-full sm:w-[500px] bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
+                        <div className="flex flex-col h-full">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                <h3 className="text-xl font-semibold text-gray-900">Create New Delivery</h3>
                                 <button
-                                    onClick={() => setShowCreateModal(false)}
-                                    className="text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowCreatePanel(false)}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     <XMarkIcon className="h-6 w-6" />
                                 </button>
                             </div>
-                            <form onSubmit={handleCreateDelivery} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Pickup Location</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.pickupLocation}
-                                        onChange={(e) => setFormData({ ...formData, pickupLocation: e.target.value })}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Delivery Location</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.deliveryLocation}
-                                        onChange={(e) => setFormData({ ...formData, deliveryLocation: e.target.value })}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
+                            {/* Form Content */}
+                            <div className="flex-1 overflow-y-auto p-8">
+                                <form id="create-delivery-form" onSubmit={handleCreateDelivery} className="space-y-6">
+                                    {/* Route Information */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Customer Name</label>
-                                        <input
-                                            type="text"
-                                            value={formData.customerName}
-                                            onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        />
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Route Information</h4>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Pickup Location</label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    placeholder="Enter pickup address"
+                                                    value={formData.pickupLocation}
+                                                    onChange={(e) => setFormData({ ...formData, pickupLocation: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Delivery Location</label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    placeholder="Enter delivery address"
+                                                    value={formData.deliveryLocation}
+                                                    onChange={(e) => setFormData({ ...formData, deliveryLocation: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
+
+                                    {/* Customer Information */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Customer Phone</label>
-                                        <input
-                                            type="tel"
-                                            value={formData.customerPhone}
-                                            onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        />
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Customer Information</h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Customer Name</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Enter customer name"
+                                                    value={formData.customerName}
+                                                    onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Customer Phone</label>
+                                                <input
+                                                    type="tel"
+                                                    placeholder="Enter phone number"
+                                                    value={formData.customerPhone}
+                                                    onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
+
+                                    {/* Payment Details */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Fee (₺)</label>
-                                        <input
-                                            type="number"
-                                            min="1"
-                                            value={formData.fee}
-                                            onChange={(e) => setFormData({ ...formData, fee: e.target.value })}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        />
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Payment Details</h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Fee (₺)</label>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    placeholder="0"
+                                                    value={formData.fee}
+                                                    onChange={(e) => setFormData({ ...formData, fee: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
+                                                <select
+                                                    value={formData.paymentMethod}
+                                                    onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                >
+                                                    <option value="cash">Cash</option>
+                                                    <option value="card">Card</option>
+                                                    <option value="transfer">Transfer</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
+
+                                    {/* Assignment & Priority */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Payment Method</label>
-                                        <select
-                                            value={formData.paymentMethod}
-                                            onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="cash">Cash</option>
-                                            <option value="card">Card</option>
-                                            <option value="transfer">Transfer</option>
-                                        </select>
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Assignment & Priority</h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Priority Level</label>
+                                                <select
+                                                    value={formData.priority}
+                                                    onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                >
+                                                    <option value="low">Low Priority</option>
+                                                    <option value="normal">Normal Priority</option>
+                                                    <option value="high">High Priority</option>
+                                                    <option value="urgent">Urgent</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Assign to Driver</label>
+                                                <select
+                                                    value={formData.assignedTo}
+                                                    onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                >
+                                                    <option value="">Select Driver</option>
+                                                    {drivers.map((driver) => (
+                                                        <option key={driver._id} value={driver._id}>
+                                                            {driver.name} - {driver.area}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
+
+                                    {/* Additional Details */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Priority</label>
-                                        <select
-                                            value={formData.priority}
-                                            onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="low">Low</option>
-                                            <option value="normal">Normal</option>
-                                            <option value="high">High</option>
-                                            <option value="urgent">Urgent</option>
-                                        </select>
+                                        <h4 className="text-lg font-medium text-gray-900 mb-4">Additional Details</h4>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Estimated Time</label>
+                                                <input
+                                                    type="datetime-local"
+                                                    value={formData.estimatedTime}
+                                                    onChange={(e) => setFormData({ ...formData, estimatedTime: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                                                <textarea
+                                                    rows="3"
+                                                    placeholder="Add any additional notes or special instructions..."
+                                                    value={formData.notes}
+                                                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 resize-none"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Assign to Driver</label>
-                                        <select
-                                            value={formData.assignedTo}
-                                            onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="">Select Driver</option>
-                                            {drivers.map((driver) => (
-                                                <option key={driver._id} value={driver._id}>
-                                                    {driver.name} - {driver.area}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Estimated Time</label>
-                                    <input
-                                        type="datetime-local"
-                                        value={formData.estimatedTime}
-                                        onChange={(e) => setFormData({ ...formData, estimatedTime: e.target.value })}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Notes</label>
-                                    <textarea
-                                        rows="3"
-                                        value={formData.notes}
-                                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div className="flex justify-end space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowCreateModal(false)}
-                                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 text-sm font-medium text-white bg-gradient-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
-                                    >
-                                        Create Delivery
-                                    </button>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCreatePanel(false)}
+                                    className="px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    form="create-delivery-form"
+                                    className="px-8 py-3 text-sm font-medium text-white bg-gradient-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 rounded-lg"
+                                >
+                                    Create Delivery
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Edit Delivery Modal */}
-            {showEditModal && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-medium text-gray-900">Edit Delivery</h3>
+            {/* Edit Delivery Side Panel */}
+            {showEditPanel && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50">
+                    <div className="fixed right-0 top-0 h-screen w-full sm:w-96 bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
+                        <div className="flex flex-col h-full">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                <h3 className="text-xl font-semibold text-gray-900">Edit Delivery</h3>
                                 <button
-                                    onClick={() => setShowEditModal(false)}
-                                    className="text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowEditPanel(false)}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     <XMarkIcon className="h-6 w-6" />
                                 </button>
                             </div>
-                            <form onSubmit={handleUpdateDelivery} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Pickup Location</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.pickupLocation}
-                                        onChange={(e) => setFormData({ ...formData, pickupLocation: e.target.value })}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Delivery Location</label>
-                                    <input
-                                        type="text"
-                                        required
-                                        value={formData.deliveryLocation}
-                                        onChange={(e) => setFormData({ ...formData, deliveryLocation: e.target.value })}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
+                            {/* Form Content */}
+                            <div className="flex-1 overflow-y-auto p-6">
+                                <form id="edit-delivery-form" onSubmit={handleUpdateDelivery} className="space-y-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Customer Name</label>
+                                        <label className="block text-sm font-medium text-gray-700">Pickup Location</label>
                                         <input
                                             type="text"
-                                            value={formData.customerName}
-                                            onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                                            required
+                                            value={formData.pickupLocation}
+                                            onChange={(e) => setFormData({ ...formData, pickupLocation: e.target.value })}
                                             className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Customer Phone</label>
+                                        <label className="block text-sm font-medium text-gray-700">Delivery Location</label>
                                         <input
-                                            type="tel"
-                                            value={formData.customerPhone}
-                                            onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
+                                            type="text"
+                                            required
+                                            value={formData.deliveryLocation}
+                                            onChange={(e) => setFormData({ ...formData, deliveryLocation: e.target.value })}
                                             className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Customer Name</label>
+                                            <input
+                                                type="text"
+                                                value={formData.customerName}
+                                                onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Customer Phone</label>
+                                            <input
+                                                type="tel"
+                                                value={formData.customerPhone}
+                                                onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Fee (₺)</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={formData.fee}
+                                                onChange={(e) => setFormData({ ...formData, fee: e.target.value })}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Payment Method</label>
+                                            <select
+                                                value={formData.paymentMethod}
+                                                onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                            >
+                                                <option value="cash">Cash</option>
+                                                <option value="card">Card</option>
+                                                <option value="transfer">Transfer</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Priority</label>
+                                            <select
+                                                value={formData.priority}
+                                                onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                            >
+                                                <option value="low">Low</option>
+                                                <option value="normal">Normal</option>
+                                                <option value="high">High</option>
+                                                <option value="urgent">Urgent</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Assign to Driver</label>
+                                            <select
+                                                value={formData.assignedTo}
+                                                onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                            >
+                                                <option value="">Select Driver</option>
+                                                {drivers.map((driver) => (
+                                                    <option key={driver._id} value={driver._id}>
+                                                        {driver.name} - {driver.area}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Fee (₺)</label>
+                                        <label className="block text-sm font-medium text-gray-700">Estimated Time</label>
                                         <input
-                                            type="number"
-                                            min="1"
-                                            value={formData.fee}
-                                            onChange={(e) => setFormData({ ...formData, fee: e.target.value })}
+                                            type="datetime-local"
+                                            value={formData.estimatedTime}
+                                            onChange={(e) => setFormData({ ...formData, estimatedTime: e.target.value })}
                                             className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700">Payment Method</label>
-                                        <select
-                                            value={formData.paymentMethod}
-                                            onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                                        <label className="block text-sm font-medium text-gray-700">Notes</label>
+                                        <textarea
+                                            rows="3"
+                                            value={formData.notes}
+                                            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                             className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="cash">Cash</option>
-                                            <option value="card">Card</option>
-                                            <option value="transfer">Transfer</option>
-                                        </select>
+                                        />
                                     </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Priority</label>
-                                        <select
-                                            value={formData.priority}
-                                            onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="low">Low</option>
-                                            <option value="normal">Normal</option>
-                                            <option value="high">High</option>
-                                            <option value="urgent">Urgent</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Assign to Driver</label>
-                                        <select
-                                            value={formData.assignedTo}
-                                            onChange={(e) => setFormData({ ...formData, assignedTo: e.target.value })}
-                                            className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        >
-                                            <option value="">Select Driver</option>
-                                            {drivers.map((driver) => (
-                                                <option key={driver._id} value={driver._id}>
-                                                    {driver.name} - {driver.area}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Estimated Time</label>
-                                    <input
-                                        type="datetime-local"
-                                        value={formData.estimatedTime}
-                                        onChange={(e) => setFormData({ ...formData, estimatedTime: e.target.value })}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700">Notes</label>
-                                    <textarea
-                                        rows="3"
-                                        value={formData.notes}
-                                        onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    />
-                                </div>
-                                <div className="flex justify-end space-x-3">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowEditModal(false)}
-                                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 text-sm font-medium text-white bg-gradient-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
-                                    >
-                                        Update Delivery
-                                    </button>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowEditPanel(false)}
+                                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    form="edit-delivery-form"
+                                    className="px-6 py-2 text-sm font-medium text-white bg-gradient-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 rounded-lg"
+                                >
+                                    Update Delivery
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* View Delivery Modal */}
-            {showViewModal && selectedDelivery && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                        <div className="mt-3">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-medium text-gray-900">Delivery Details</h3>
+            {/* View Delivery Side Panel */}
+            {showViewPanel && selectedDelivery && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50">
+                    <div className="fixed right-0 top-0 h-screen w-full sm:w-96 bg-white shadow-xl transform transition-transform duration-300 ease-in-out">
+                        <div className="flex flex-col h-full">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                <h3 className="text-xl font-semibold text-gray-900">Delivery Details</h3>
                                 <button
-                                    onClick={() => setShowViewModal(false)}
-                                    className="text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowViewPanel(false)}
+                                    className="text-gray-400 hover:text-gray-600 transition-colors"
                                 >
                                     <XMarkIcon className="h-6 w-6" />
                                 </button>
                             </div>
-                            <div className="space-y-4">
-                                <div className="bg-gray-50 p-4 rounded-lg">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <h4 className="text-lg font-medium text-gray-900">{selectedDelivery.deliveryCode}</h4>
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedDelivery.status)}`}>
-                                            {selectedDelivery.status.replace('_', ' ')}
-                                        </span>
-                                    </div>
-                                    <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(selectedDelivery.priority)}`}>
-                                        {selectedDelivery.priority} priority
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Customer</label>
-                                        <div className="mt-1 text-sm text-gray-900">
-                                            {selectedDelivery.customerName || 'N/A'}
+                            {/* Content */}
+                            <div className="flex-1 overflow-y-auto p-6">
+                                <div className="space-y-4">
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h4 className="text-lg font-medium text-gray-900">{selectedDelivery.deliveryCode}</h4>
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedDelivery.status)}`}>
+                                                {selectedDelivery.status.replace('_', ' ')}
+                                            </span>
                                         </div>
-                                        <div className="text-sm text-gray-500">
-                                            {selectedDelivery.customerPhone || 'N/A'}
+                                        <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getPriorityColor(selectedDelivery.priority)}`}>
+                                            {selectedDelivery.priority} priority
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Route</label>
-                                        <div className="mt-1 text-sm text-gray-900">
-                                            <div>From: {selectedDelivery.pickupLocation}</div>
-                                            <div>To: {selectedDelivery.deliveryLocation}</div>
+                                    <div className="space-y-3">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Customer</label>
+                                            <div className="mt-1 text-sm text-gray-900">
+                                                {selectedDelivery.customerName || 'N/A'}
+                                            </div>
+                                            <div className="text-sm text-gray-500">
+                                                {selectedDelivery.customerPhone || 'N/A'}
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Driver</label>
-                                        <div className="mt-1 text-sm text-gray-900">
-                                            {selectedDelivery.assignedTo ? (
-                                                <div>
-                                                    <div>{selectedDelivery.assignedTo.name}</div>
-                                                    <div className="text-gray-500">{selectedDelivery.assignedTo.area}</div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Route</label>
+                                            <div className="mt-1 text-sm text-gray-900">
+                                                <div>From: {selectedDelivery.pickupLocation}</div>
+                                                <div>To: {selectedDelivery.deliveryLocation}</div>
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Driver</label>
+                                            <div className="mt-1 text-sm text-gray-900">
+                                                {selectedDelivery.assignedTo ? (
+                                                    <div>
+                                                        <div>{selectedDelivery.assignedTo.name}</div>
+                                                        <div className="text-gray-500">{selectedDelivery.assignedTo.area}</div>
+                                                    </div>
+                                                ) : (
+                                                    'Unassigned'
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Payment</label>
+                                            <div className="mt-1 text-sm text-gray-900">
+                                                <div>Fee: ₺{selectedDelivery.fee}</div>
+                                                <div className="text-gray-500">Method: {selectedDelivery.paymentMethod}</div>
+                                            </div>
+                                        </div>
+
+                                        {selectedDelivery.estimatedTime && (
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">Estimated Time</label>
+                                                <div className="mt-1 text-sm text-gray-900">
+                                                    {format(new Date(selectedDelivery.estimatedTime), 'MMM dd, yyyy HH:mm')}
                                                 </div>
-                                            ) : (
-                                                'Unassigned'
-                                            )}
-                                        </div>
-                                    </div>
+                                            </div>
+                                        )}
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Payment</label>
-                                        <div className="mt-1 text-sm text-gray-900">
-                                            <div>Fee: ₺{selectedDelivery.fee}</div>
-                                            <div className="text-gray-500">Method: {selectedDelivery.paymentMethod}</div>
-                                        </div>
-                                    </div>
+                                        {selectedDelivery.notes && (
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700">Notes</label>
+                                                <div className="mt-1 text-sm text-gray-900">
+                                                    {selectedDelivery.notes}
+                                                </div>
+                                            </div>
+                                        )}
 
-                                    {selectedDelivery.estimatedTime && (
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700">Estimated Time</label>
-                                            <div className="mt-1 text-sm text-gray-900">
-                                                {format(new Date(selectedDelivery.estimatedTime), 'MMM dd, yyyy HH:mm')}
+                                            <label className="block text-sm font-medium text-gray-700">Timeline</label>
+                                            <div className="mt-1 space-y-1 text-sm text-gray-900">
+                                                <div>Created: {selectedDelivery.createdAt ? format(new Date(selectedDelivery.createdAt), 'MMM dd, yyyy HH:mm') : 'N/A'}</div>
+                                                {selectedDelivery.assignedAt && (
+                                                    <div>Assigned: {format(new Date(selectedDelivery.assignedAt), 'MMM dd, yyyy HH:mm')}</div>
+                                                )}
+                                                {selectedDelivery.pickedUpAt && (
+                                                    <div>Picked Up: {format(new Date(selectedDelivery.pickedUpAt), 'MMM dd, yyyy HH:mm')}</div>
+                                                )}
+                                                {selectedDelivery.deliveredAt && (
+                                                    <div>Delivered: {format(new Date(selectedDelivery.deliveredAt), 'MMM dd, yyyy HH:mm')}</div>
+                                                )}
                                             </div>
                                         </div>
-                                    )}
-
-                                    {selectedDelivery.notes && (
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700">Notes</label>
-                                            <div className="mt-1 text-sm text-gray-900">
-                                                {selectedDelivery.notes}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Timeline</label>
-                                        <div className="mt-1 space-y-1 text-sm text-gray-900">
-                                            <div>Created: {selectedDelivery.createdAt ? format(new Date(selectedDelivery.createdAt), 'MMM dd, yyyy HH:mm') : 'N/A'}</div>
-                                            {selectedDelivery.assignedAt && (
-                                                <div>Assigned: {format(new Date(selectedDelivery.assignedAt), 'MMM dd, yyyy HH:mm')}</div>
-                                            )}
-                                            {selectedDelivery.pickedUpAt && (
-                                                <div>Picked Up: {format(new Date(selectedDelivery.pickedUpAt), 'MMM dd, yyyy HH:mm')}</div>
-                                            )}
-                                            {selectedDelivery.deliveredAt && (
-                                                <div>Delivered: {format(new Date(selectedDelivery.deliveredAt), 'MMM dd, yyyy HH:mm')}</div>
-                                            )}
-                                        </div>
                                     </div>
+
                                 </div>
 
-                                <div className="flex justify-end space-x-3">
+                                {/* Footer */}
+                                <div className="flex items-center justify-end space-x-3 p-6 border-t border-gray-200 bg-gray-50">
                                     <button
-                                        onClick={() => setShowViewModal(false)}
-                                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                                        onClick={() => setShowViewPanel(false)}
+                                        className="px-6 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
                                     >
                                         Close
                                     </button>
